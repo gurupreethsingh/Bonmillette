@@ -1,0 +1,14 @@
+/* Hide scrollbar but allow scrolling */
+html {
+  scrollbar-width: none; /* For Firefox */
+  -ms-overflow-style: none; /* For IE and Edge */
+}
+
+html::-webkit-scrollbar {
+  display: none; /* For Chrome, Safari, and Opera */
+}
+
+body {
+  overflow-y: scroll; /* Ensure scrolling is still enabled */
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
