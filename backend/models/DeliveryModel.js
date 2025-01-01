@@ -42,6 +42,9 @@ const DeliveryTaskSchema = new mongoose.Schema(
       ],
       default: "Pending",
     },
+    receiverOtp: {
+      type: String, // Field for storing the OTP
+    },
     statusTimings: {
       pendingAt: { type: Date, default: Date.now }, // Timestamp for when the task is created
       assignedAt: { type: Date }, // Timestamp for "Assigned" status

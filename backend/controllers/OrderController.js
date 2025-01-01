@@ -1540,3 +1540,83 @@ exports.synchronizeDeliveryStatus = async (orderId, newStatus) => {
     throw new Error("Synchronization failed.");
   }
 };
+
+exports.synchronizeDeliveryStatus = async (
+  orderId,
+  newStatus,
+  comments = ""
+) => {
+  try {
+    // Update DeliveryTask
+    const deliveryTaskUpdate = await DeliveryTask.updateOne(
+      { orderId },
+      {
+        $set: { deliveryStatus: newStatus },
+        $push: {
+          history: { status: newStatus, timestamp: new Date(), comments },
+        },
+      }
+    );
+
+    // Update Order
+    const orderUpdate = await Order.updateOne(
+      { orderId },
+      {
+        $set: { delivery_status: newStatus },
+        $push: {
+          history: { status: newStatus, timestamp: new Date(), comments },
+        },
+      }
+    );
+
+    if (
+      deliveryTaskUpdate.modifiedCount === 0 &&
+      orderUpdate.modifiedCount === 0
+    ) {
+      throw new Error("No records were updated for synchronization.");
+    }
+  } catch (error) {
+    console.error("Error synchronizing delivery status:", error.message);
+    throw new Error("Synchronization failed.");
+  }
+};
+
+exports.updateDeliveryTaskStatus = async (req, res) => {
+  try {
+    const { id } = req.params; // DeliveryTask ID
+    const { deliveryStatus, comments } = req.body; // New status and optional comments
+
+    if (!deliveryStatus) {
+      return res.status(400).json({
+        success: false,
+        message: "Delivery status is required.",
+      });
+    }
+
+    const deliveryTask = await DeliveryTask.findById(id);
+    if (!deliveryTask) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Delivery task not found." });
+    }
+
+    // Synchronize delivery status
+    await exports.synchronizeDeliveryStatus(
+      deliveryTask.orderId,
+      deliveryStatus,
+      comments
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Delivery task status updated and synchronized successfully.",
+    });
+  } catch (error) {
+    console.error("Error updating delivery task status:", error.message);
+    res.status(500).json({
+      success: false,
+      message: "Failed to update delivery task status.",
+      error: error.message,
+    });
+  }
+};

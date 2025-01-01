@@ -113,6 +113,11 @@ import TermsAndConditions from "./pages/common_pages/TermsAndConditions";
 
 // delivery routes.
 import AssignOrderForDelivery from "./pages/delivery_person_pages/AssignOrderForDelivery";
+import AllDeliveries from "./pages/delivery_person_pages/AllDeliveries";
+import DeliveryAgentDashboard from "./pages/delivery_person_pages/DeliveryAgentDashboard";
+import SingleDelivery from "./pages/delivery_person_pages/SingleDelivery";
+import DeliveriesByAgent from "./pages/delivery_person_pages/DeliveriesByAgent";
+import SingleAssignedDelivery from "./pages/delivery_person_pages/SingleAssignedDelivery";
 
 // Page title handler
 const PageTitle = ({ title }) => {
@@ -313,6 +318,23 @@ const TitleUpdater = () => {
       return "Terms And Conditions";
     } else if (pathname === "/assign-order-for-delivery") {
       return "Assing Order For Delivery";
+    } else if (pathname === "/get-all-deliveries") {
+      return "Get All Deliveries";
+    } else if (pathname.startsWith("/delivery-agent-dashboard/")) {
+      const id = pathname.split("/")[2]; // Extract the ID
+      return `Delivery Agent Dashboard - ${id}`;
+    } else if (pathname.startsWith("/single-delivery/")) {
+      const id = pathname.split("/")[2]; // Extract the ID
+      return `Single Delivery - ${id}`;
+      DeliveriesByAgent;
+    } else if (pathname.startsWith("/deliveries-by-agent/")) {
+      const id = pathname.split("/")[2]; // Extract the ID
+      return `Deliveries By Agent - ${id}`;
+    } else if (pathname.startsWith("/delivery-agent/")) {
+      const parts = pathname.split("/");
+      if (parts[3] === "delivery" && parts[4]) {
+        return `Assigned Delivery - ${parts[4]}`;
+      }
     } else {
       return "Page Not Found";
     }
@@ -897,6 +919,54 @@ function App() {
             element={
               <PrivateRoute allowedRoles={["superadmin", "outlet"]}>
                 <AssignOrderForDelivery />
+              </PrivateRoute>
+            }
+          />
+
+          {/* fetch all the deliveries */}
+          <Route
+            path="/get-all-deliveries"
+            element={
+              <PrivateRoute allowedRoles={["superadmin", "outlet"]}>
+                <AllDeliveries />
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/single-delivery/:deliveryId"
+            element={
+              <PrivateRoute allowedRoles={["superadmin", "outlet"]}>
+                <SingleDelivery />
+              </PrivateRoute>
+            }
+          />
+
+          {/* delivery agent dashbaord  */}
+
+          <Route
+            path="/delivery-agent-dashboard/:id"
+            element={
+              <PrivateRoute allowedRoles={["superadmin", "delivery_agent"]}>
+                <DeliveryAgentDashboard />
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/deliveries-by-agent/:id"
+            element={
+              <PrivateRoute allowedRoles={["superadmin", "delivery_agent"]}>
+                <DeliveriesByAgent />
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/delivery-agent/:deliveryAgentId/delivery/:deliveryId"
+            element={
+              <PrivateRoute allowedRoles={["superadmin", "delivery_agent"]}>
+                <SingleAssignedDelivery />
               </PrivateRoute>
             }
           />

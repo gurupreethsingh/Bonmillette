@@ -158,9 +158,8 @@
 //
 
 // pages/Login.jsx
-// pages/Login.jsx
-// pages/Login.jsx
-import React, { useState, useContext } from "react";
+
+import React, { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { AuthContext } from "../../components/AuthContext";
@@ -188,6 +187,31 @@ export default function Login() {
   };
 
   // Handle email-password login
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   setError("");
+
+  //   try {
+  //     const response = await axios.post("http://localhost:3006/api/login", {
+  //       ...formData,
+  //       loginType: "email",
+  //     });
+
+  //     const { token, user } = response.data;
+
+  //     if (token && user) {
+  //       login(token, user.role); // Save role in context
+  //       navigate(`/${user.role}-dashboard/${user.id}`);
+  //     } else {
+  //       setError("Login failed. Please try again.");
+  //     }
+  //   } catch (err) {
+  //     setError(
+  //       err.response?.data?.message || "An error occurred. Please try again."
+  //     );
+  //   }
+  // };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -202,7 +226,25 @@ export default function Login() {
 
       if (token && user) {
         login(token, user.role); // Save role in context
-        navigate(`/${user.role}-dashboard/${user.id}`);
+
+        // Centralized role-path mapping
+        const rolePathMap = {
+          superadmin: "superadmin-dashboard",
+          admin: "admin-dashboard",
+          employee: "employee-dashboard",
+          outlet: "outlet-dashboard",
+          vendor: "vendor-dashboard",
+          delivery_agent: "delivery-agent-dashboard",
+          user: "user-dashboard",
+        };
+
+        const rolePath = rolePathMap[user.role];
+        if (rolePath) {
+          navigate(`/${rolePath}/${user.id}`);
+        } else {
+          console.error("Invalid user role. Navigating to default dashboard.");
+          navigate(`/user-dashboard/${user.id}`); // Default fallback
+        }
       } else {
         setError("Login failed. Please try again.");
       }

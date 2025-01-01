@@ -1029,6 +1029,7 @@ const SuperadminDashboard = () => {
     orders: 0,
     unresolvedIssues: 0,
     unresolvedOrderIssues: [],
+    totalDeliveries: 0,
   });
 
   useEffect(() => {
@@ -1067,6 +1068,7 @@ const SuperadminDashboard = () => {
           customers,
           employees,
           orders,
+          totalDeliveries,
         ] = await Promise.all([
           axios.get("http://localhost:3006/api/get-all-issues", {
             headers: { Authorization: `Bearer ${token}` },
@@ -1086,6 +1088,9 @@ const SuperadminDashboard = () => {
           axios.get("http://localhost:3006/api/get-total-order-count", {
             headers: { Authorization: `Bearer ${token}` },
           }),
+          axios.get("http://localhost:3006/api/count-total-deliveries-count", {
+            headers: { Authorization: `Bearer ${token}` },
+          }), // Fetch total deliveries count
         ]);
 
         const unresolvedOrderIssues =
@@ -1120,6 +1125,7 @@ const SuperadminDashboard = () => {
           orders: orders.data.totalOrders || 0,
           unresolvedIssues: unresolvedIssuesCount,
           unresolvedOrderIssues,
+          totalDeliveries: totalDeliveries.data.totalDeliveries || 0,
         });
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -1170,14 +1176,14 @@ const SuperadminDashboard = () => {
         bgColor: "bg-gray-100",
         textColor: "text-gray-500",
       },
+
       {
-        title: "Unresolved Issues",
-        value: counts.unresolvedIssues,
-        link: "/all-issues",
-        redDot: showRedDotUnresolved,
-        category: "issues",
-        bgColor: "bg-red-100",
-        textColor: "text-red-500",
+        title: "Total Deliveries", // New card
+        value: counts.totalDeliveries,
+        link: "/get-all-deliveries", // Link to all deliveries page
+        category: "deliveries",
+        bgColor: "bg-purple-100",
+        textColor: "text-purple-500",
       },
     ].filter((card) => card.title.toLowerCase().includes(lowerKeyword));
   };

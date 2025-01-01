@@ -204,27 +204,25 @@ const login = async (req, res) => {
     const { email, loginType } = req.body;
 
     if (loginType === "google") {
-      // Check if the user exists in the database
       let user = await User.findOne({ email });
       if (!user) {
-        // Create a new user if not found
         user = await User.create({
-          name: email.split("@")[0], // Placeholder name from email
+          name: email.split("@")[0],
           email,
-          role: "user", // Default role
+          role: "user",
         });
       }
 
-      // Generate a JWT token for the user
       const token = jwt.sign(
         { id: user._id, name: user.name, role: user.role },
         process.env.JWT_SECRET,
         { expiresIn: "1h" }
       );
 
-      return res.status(200).json({ token, user });
+      return res
+        .status(200)
+        .json({ token, user: { id: user._id, ...user._doc } });
     } else {
-      // Handle email-password login
       const user = await User.findOne({ email });
       if (!user) return res.status(400).json({ message: "User not found" });
 
@@ -241,7 +239,9 @@ const login = async (req, res) => {
         { expiresIn: "1h" }
       );
 
-      return res.status(200).json({ token, user });
+      return res
+        .status(200)
+        .json({ token, user: { id: user._id, ...user._doc } });
     }
   } catch (error) {
     res.status(500).json({ error: error.message });
